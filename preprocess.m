@@ -31,29 +31,33 @@ function outSentence = preprocess( inSentence, language )
   % perform language-agnostic changes
   % separate end of sentece puntuation
   outSentence = regexprep( outSentence, '[.!?](?= SENTEND)', ' $0');
-  %separte other puntuation [,:;()+-<>="]
-  outSentence = regexprep( outSentence, '|\,|\:|\;|\(|\)|\-+|\+|<|>|\=|\"', ' $0 ');
-  % trim whitespaces
-  outSentence = regexprep( outSentence, '\s+', ' ');
+  outSentence = regexprep(outSentence, '\.\.+', ' $0 ');
+  % separte other puntuation ,:;()[]{}"&$
+  outSentence = regexprep( outSentence, '\,|\:|\;|\(|\)|\[|\]|\{|\}|\"|\&|\$', ' $0 ');
+  % separte math operators %<>=+-/*^
+  outSentence = regexprep( outSentence, '\%|\<|\>|\=|\+|\-|\/|\*|\^', ' $0 ');
+  % separte diffrent types of quotations
+  outSentence = regexprep( outSentence, '\`\`|''''', ' $0 ');
 
   switch language
    case 'e'
     % separating possessives and clitics 
     outSentence = regexprep( outSentence, 'n''t|''\w+', ' $0');
-    % trim whitespaces
-    outSentence = regexprep( outSentence, '\s+', ' ');
     
-
    case 'f'
     % separate french contractions
-    outSentence = regexprep( outSentence, '\w+''(?=on|il)|qu''|[a-ce-z]''', '$0 ');
-    % trim whitespaces
-    outSentence = regexprep( outSentence, '\s+', ' ');
-
+    % separate leading consonant and apostrophe from
+    outSentence = regexprep( outSentence, '\w''(?=\w+)', '$0 ');
+    % separate leading qu' from concatenated word
+    outSentence = regexprep( outSentence, 'qu''\w+', '$0 ');
+    % separate following on or il
+    outSentence = regexprep( outSentence, '\w+''(?=on|il)', '$0 ');
+    % should not be separated d?abord, d?accord, d?ailleurs, d?habitude
+    outSentence = regexprep( outSentence, '(d'') (abord|accord|ailleurs|habitude)', '$1$2');
+    
   end
 
+  % trim whitespaces
+  outSentence = regexprep( outSentence, '\s+', ' ');
   % change unpleasant characters to codes that can be keys in dictionaries
   outSentence = convertSymbols( outSentence );
- 
-  % preprocess(sentence, 'e')
-
