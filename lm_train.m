@@ -31,7 +31,7 @@ global CSC401_A2_DEFNS
 LM=struct();
 LM.uni = struct();
 LM.bi = struct();
-
+ 
 SENTSTARTMARK = 'SENTSTART'; 
 SENTENDMARK = 'SENTEND';
 
@@ -46,10 +46,30 @@ for iFile=1:length(DD)
   for l=1:length(lines)
 
     processedLine =  preprocess(lines{l}, language);
-    words = strsplit(' ', processedLine );
+    words = strsplit( ' ', processedLine);
     
     % TODO: THE STUDENT IMPLEMENTS THE FOLLOWING
-
+    for i=1:length(words)
+        w = char(words(i));
+        % UNI
+        if isfield(LM.uni, w)
+            LM.uni.(w)= LM.uni.(w) + 1;
+        else
+            LM.uni.(w) = 1;
+        end
+        % BI
+        % Initializing the first element of the bigram
+        if ~isfield(LM.bi, w)
+            LM.bi.(w) = struct();
+        end
+        if i > 1
+            pw = char(words(i-1));
+            if ~isfield(LM.bi.(pw), w)
+                LM.bi.(pw).(w) = 0;
+            end
+            LM.bi.(pw).(w) = LM.bi.(pw).(w) + 1;
+        end      
+    end
     % TODO: THE STUDENT IMPLEMENTED THE PRECEDING
   end
 end
