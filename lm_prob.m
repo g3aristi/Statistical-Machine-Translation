@@ -16,8 +16,6 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
 %
 % Template (c) 2011 Frank Rudzicz
 
-  logProb = -Inf;
-
   % some rudimentary parameter checking
   if (nargin < 2)
     disp( 'lm_prob takes at least 2 parameters');
@@ -45,7 +43,31 @@ function logProb = lm_prob(sentence, LM, type, delta, vocabSize)
   end
 
   words = strsplit(' ', sentence);
-
+  
   % TODO: the student implements the following
+  nw = char(words(1));
+  sentence_MLE = 1;
+  for i=2:length(words)
+      cw = nw;                  % Current word
+      nw = char(words(i));      % Next word
+        
+      MLE = -Inf;
+        
+      if isfield(LM.uni, cw)            % Part of the unigram
+          if isfield(LM.bi.(cw), nw)    % The bigram exists
+              MLE = (LM.bi.(cw).(nw) + delta) / (LM.uni.(cw) + delta * vocabSize);
+          else                          % new biagram
+              MLE = delta / (LM.uni.(cw) + delta * vocabSize);
+          end
+      else                              % New word with delta smoothing
+          if delta > 0
+              MLE = 1 / vocabSize;
+          end
+      end
+      % sentence MLE = product of all the sentence words MLEs
+      sentence_MLE = sentence_MLE * MLE;
+  end
+   
+  logProb = log2(sentence_MLE); 
   % TODO: once upon a time there was a curmudgeonly orangutan named Jub-Jub.
 return
